@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989623737343",
+    "project_id": "deshcam-e3ef5",
+    "storage_bucket": "deshcam-e3ef5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989623737343:android:dfeb04e7b5ff21e66ae5ca",
+        "android_client_info": {
+          "package_name": "com.vearshop.deshcam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVYtt2L2qOZr64ZCKuY0Rkb0QWlBQwKTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
