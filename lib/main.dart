@@ -5,9 +5,9 @@ import 'package:deshcam/views/verify_email.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 void main() {
-
   WidgetsFlutterBinding.ensureInitialized;
 
   runApp(
@@ -27,41 +27,109 @@ void main() {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage
-({super.key});
+  const HomePage({super.key});
 
-   @override
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder( // This is a special builder widget that contains future functions. it has future and builder.
+    return FutureBuilder(
+      // This is a special builder widget that contains future functions. it has future and builder.
 
-        future: Firebase.initializeApp(  // future: contains the future function
-                  options: DefaultFirebaseOptions.currentPlatform,
-                ), // initializes the Friebase, this should be done before using the function below: FirebaseAuth.instance.createUserWithEmailAndPassword
+      future: Firebase.initializeApp(
+        // future: contains the future function
+        options: DefaultFirebaseOptions.currentPlatform,
+      ), // initializes the Friebase, this should be done before using the function below: FirebaseAuth.instance.createUserWithEmailAndPassword
 
-        builder: (context, snapshot) { // builder contains the rest of it
+      builder: (context, snapshot) {
+        // builder contains the rest of it
 
-          switch (snapshot.connectionState) { //snapshot.connectionState is the state of the future function (none, waiting, active, done) 
-            
-            case ConnectionState.done: // when it's done, we can build the rest of it, for other cases "Loading..." text will be printed. (See the default case in this switch statement)
-              final user = FirebaseAuth.instance.currentUser;
-              if (user != null) {
-                if (user.emailVerified) {
-                  print('Email is verified');
-                } else {
-                  return const VerifyEmailView();
-                }
+        switch (snapshot.connectionState) {
+          //snapshot.connectionState is the state of the future function (none, waiting, active, done)
+
+          case ConnectionState
+                .done: // when it's done, we can build the rest of it, for other cases "Loading..." text will be printed. (See the default case in this switch statement)
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null) {
+              if (user.emailVerified) {
+                return const NotesView();
               } else {
-                return const LoginView();
+                return const VerifyEmailView();
               }
-             return const Text('Done!');
-            default: 
-              return const CircularProgressIndicator();
+            } else {
+              return const LoginView();
+            }
+          default:
+            return const CircularProgressIndicator();
         }
-
-          
-        },
-      );
+      },
+    );
   }
 }
 
+enum MenuAction { logout }
 
+class NotesView extends StatefulWidget {
+  const NotesView({super.key});
+
+  @override
+  State<NotesView> createState() => _NotesViewState();
+}
+
+class _NotesViewState extends State<NotesView> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main UI'),
+        actions: [
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) async{
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  if(shouldLogout) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/login/', 
+                      (_) => false
+                    );
+                  }
+              }
+            },
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem<MenuAction>(
+                    value: MenuAction.logout, child: Text('Log out')),
+              ];
+            },
+          )
+        ],
+      ),
+      body: const Text('Hello World'),
+    );
+  }
+}
+
+Future<bool> showLogOutDialog(BuildContext context) {
+  return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Log out'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Log out'),
+            ),
+          ],
+        );
+      }).then((value) => value ?? false);
+}
