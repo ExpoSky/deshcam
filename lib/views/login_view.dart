@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -32,7 +33,9 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login'),),
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),
       body: Column(
         children: [
           TextField(
@@ -44,7 +47,7 @@ class _LoginViewState extends State<LoginView> {
                 hintText:
                     "Enter your email here"), // Hint for user in the text field
           ), // The field for user to input Text.
-      
+
           TextField(
             controller: _password,
             obscureText: true, // hides the characters wirth star signs(*)
@@ -54,23 +57,25 @@ class _LoginViewState extends State<LoginView> {
                 hintText:
                     "Enter your passowrd here"), // Hint for user in the text field
           ), // To store the input value, late final TextEditingController has been created above
-      
+
           TextButton(
             onPressed: () async {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
                   email: email,
                   password: password,
                 );
-                print(userCredential);
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/notes/',
+                  (route) => false,
+                );
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  print('User Not Found');
+                  devtools.log('User Not Found');
                 } else if (e.code == 'wrong-password') {
-                  print('Wrong Password');
+                  devtools.log('Wrong Password');
                 }
               }
             }, // Registiration will be done in Firebase which functions async
