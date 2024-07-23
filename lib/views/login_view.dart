@@ -1,3 +1,4 @@
+import 'package:deshcam/constants/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
@@ -55,7 +56,7 @@ class _LoginViewState extends State<LoginView> {
             autocorrect: false, // disables auto correction in keypad
             decoration: const InputDecoration(
                 hintText:
-                    "Enter your passowrd here"), // Hint for user in the text field
+                    "Enter your password here"), // Hint for user in the text field
           ), // To store the input value, late final TextEditingController has been created above
 
           TextButton(
@@ -68,7 +69,7 @@ class _LoginViewState extends State<LoginView> {
                   password: password,
                 );
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/notes/',
+                  notesRoute,
                   (route) => false,
                 );
               } on FirebaseAuthException catch (e) {
@@ -84,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
           TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/register/', (route) => false);
+                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
               child: const Text('Not registered yet? Register here.'))
         ],
