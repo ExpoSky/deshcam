@@ -1,7 +1,7 @@
 import 'package:deshcam/constants/routes.dart';
+import 'package:deshcam/utilities/show_error_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -66,20 +66,44 @@ class _RegisterViewState extends State<RegisterView> {
               final password = _password.text;
 
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
                   email: email,
                   password: password,
-                ); // Future function: creates the user in Firebase
-                devtools.log(userCredential.toString());
+                ); // Future function: creates the user in 
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                if (!context.mounted) return;
+                Navigator.of(context).pushNamed(
+                    verifyEmailRoute); // pushNamedAndRemoveUntil yerine bu. çünkü sayfada backbutton olmasını istiyorıuz.
               } on FirebaseAuthException catch (e) {
+                if (!context.mounted) return;
                 if (e.code == 'weak-password') {
-                  devtools.log('Weak Password');
+                  await showErrorDialog(
+                    context,
+                    'Weak password',
+                  );
                 } else if (e.code == 'email-alrady-in-use') {
-                  devtools.log('Email is already in use');
+                  await showErrorDialog(
+                    context,
+                    'Email is already in use',
+                  );
                 } else if (e.code == 'invalid-email') {
-                  devtools.log('Email is invalid');
+                  await showErrorDialog(
+                    context,
+                    'This is an invalid email',
+                  );
+                } else {
+                  await showErrorDialog(
+                    context,
+                    'Error ${e.code}',
+                  );
                 }
+              } catch (e) {
+                if (!context.mounted) return;
+                await showErrorDialog(
+                  context,
+                  e.toString(),
+                );
               }
             }, // Registiration will be done in Firebase which functions async
             child: const Text("Register"),
