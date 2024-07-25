@@ -1,11 +1,21 @@
+import 'package:deshcam/firebase_options.dart';
 import 'package:deshcam/services/auth/auth_user.dart';
 import 'package:deshcam/services/auth/auth_provider.dart';
 import 'package:deshcam/services/auth/auth_exceptions.dart';
-
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
+import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseAuthProvider implements AuthProvider {
+
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      // future: contains the future function
+      options: DefaultFirebaseOptions.currentPlatform,
+    ); // initializes the Friebase, this should be done before using the function below: FirebaseAuth.instance.createUserWithEmailAndPassword
+  }
+  
   @override
   Future<AuthUser> createUser({
     required String email,
@@ -25,7 +35,7 @@ class FirebaseAuthProvider implements AuthProvider {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw WeakPaswordAuthException();
-      } else if (e.code == 'email-alrady-in-use') {
+      } else if (e.code == 'email-already-in-use') {
         throw EmailAlreadyInUseAuthException();
       } else if (e.code == 'invalid-email') {
         throw InvalidEmailAuthException();
@@ -79,7 +89,7 @@ class FirebaseAuthProvider implements AuthProvider {
   @override
   Future<void> logOut() async {
     final user = FirebaseAuth.instance.currentUser;
-    if(user != null) {
+    if (user != null) {
       await FirebaseAuth.instance.signOut();
     } else {
       throw UserNotLoggedInAuthException();
@@ -95,4 +105,5 @@ class FirebaseAuthProvider implements AuthProvider {
       throw UserNotLoggedInAuthException();
     }
   }
+
 }

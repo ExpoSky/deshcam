@@ -1,6 +1,7 @@
 import 'package:deshcam/constants/routes.dart';
+import 'package:deshcam/services/auth/auth_exceptions.dart';
+import 'package:deshcam/services/auth/auth_service.dart';
 import 'package:deshcam/utilities/show_error_dialog.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegisterView extends StatefulWidget {
@@ -66,43 +67,34 @@ class _RegisterViewState extends State<RegisterView> {
               final password = _password.text;
 
               try {
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                await AuthService.firebase().createUser(
                   email: email,
                   password: password,
-                ); // Future function: creates the user in 
-                final user = FirebaseAuth.instance.currentUser;
-                await user?.sendEmailVerification();
+                ); // Future function: creates the user in
+                await AuthService.firebase()
+                    .sendEmialVerification(); // await koydum ama tutorial koymadı
                 if (!context.mounted) return;
                 Navigator.of(context).pushNamed(
                     verifyEmailRoute); // pushNamedAndRemoveUntil yerine bu. çünkü sayfada backbutton olmasını istiyorıuz.
-              } on FirebaseAuthException catch (e) {
-                if (!context.mounted) return;
-                if (e.code == 'weak-password') {
-                  await showErrorDialog(
-                    context,
-                    'Weak password',
-                  );
-                } else if (e.code == 'email-alrady-in-use') {
-                  await showErrorDialog(
-                    context,
-                    'Email is already in use',
-                  );
-                } else if (e.code == 'invalid-email') {
-                  await showErrorDialog(
-                    context,
-                    'This is an invalid email',
-                  );
-                } else {
-                  await showErrorDialog(
-                    context,
-                    'Error ${e.code}',
-                  );
-                }
-              } catch (e) {
-                if (!context.mounted) return;
+              } on WeakPaswordAuthException {
                 await showErrorDialog(
                   context,
-                  e.toString(),
+                  'Weak password',
+                );
+              } on EmailAlreadyInUseAuthException {
+                await showErrorDialog(
+                  context,
+                  'Email is already in use',
+                );
+              } on InvalidEmailAuthException {
+                await showErrorDialog(
+                  context,
+                  'This is an invalid email',
+                );
+              } on GenericAuthException {
+                await showErrorDialog(
+                  context,
+                  'Failed to register.',
                 );
               }
             }, // Registiration will be done in Firebase which functions async
