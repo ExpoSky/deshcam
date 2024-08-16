@@ -1,11 +1,11 @@
 import 'package:deshcam/constants/routes.dart';
 import 'package:deshcam/services/auth/auth_service.dart';
 import 'package:deshcam/views/login_view.dart';
-import 'package:deshcam/views/notes_view.dart';
+import 'package:deshcam/views/notes/new_note_view.dart';
+import 'package:deshcam/views/notes/notes_view.dart';
 import 'package:deshcam/views/register_view.dart';
 import 'package:deshcam/views/verify_email.dart';
 import 'package:flutter/material.dart';
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized;
 
@@ -22,6 +22,7 @@ void main() {
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
         verifyEmailRoute: (context) => const VerifyEmailView(),
+        newNoteRoute: (context) => const NewNoteView(),
       },
     ),
   );
